@@ -1,158 +1,171 @@
 #!usr/bin/env python
+__author__    = "Westwood Robotics Corporation"
+__email__     = "info@westwoodrobotics.io"
+__copyright__ = "Copyright 2025 Westwood Robotics Corporation"
+__date__      = "July 29, 2025"
+__project__   = "PyBEAR"
+__version__   = "0.1.3"
+__status__    = "Production"
+
+'''
+BEAR Control Table
+'''
+
+from collections import defaultdict
 
 
-################################################################################
-# Copyright 2020 Westwood Robotics Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
-
-__author__ = "Westwood Robotics Corporation"
-__email__ = "info@westwoodrobotics.net"
-__copyright__ = "Copyright 2020 Westwood Robotics"
-__date__ = "Jan. 01, 2020"
-
-__version__ = "0.0.3"
-__status__ = "Prototype"
-
-"""
-Control Table
-"""
+INSTRUCTION = defaultdict()
+INSTRUCTION['PING']       = 0x01
+INSTRUCTION['READ_STAT']  = 0x02
+INSTRUCTION['WRITE_STAT'] = 0x03
+INSTRUCTION['READ_CFG']   = 0x04
+INSTRUCTION['WRITE_CFG']  = 0x05
+INSTRUCTION['SAVE_CFG']   = 0x06
+INSTRUCTION['SET_POSI']   = 0x08
+INSTRUCTION['BULK_STAT']  = 0x12
 
 
-class INSTRUCTION:
-    """
-    Instruction Constants
-    ---------------------
-    This is the field that defines the purpose of the Packet.
-    """
-    PING = 0x01
-    READ_STAT = 0x02
-    WRITE_STAT = 0x03
-    READ_CFG = 0x04
-    WRITE_CFG = 0x05
-    SAVE_CFG = 0x06
-    BULK_COMM = 0x12
+REGISTER = defaultdict(lambda: defaultdict())
 
+# Configuration
+REGISTER['REG_TYPE']['id']                 = 'cfg'
+REGISTER['REG_TYPE']['mode']               = 'cfg'
+REGISTER['REG_TYPE']['baudrate']           = 'cfg'
+REGISTER['REG_TYPE']['homing_offset']      = 'cfg'
+REGISTER['REG_TYPE']['p_gain_id']          = 'cfg'
+REGISTER['REG_TYPE']['i_gain_id']          = 'cfg'
+REGISTER['REG_TYPE']['d_gain_id']          = 'cfg'
+REGISTER['REG_TYPE']['p_gain_iq']          = 'cfg'
+REGISTER['REG_TYPE']['i_gain_iq']          = 'cfg'
+REGISTER['REG_TYPE']['d_gain_iq']          = 'cfg'
+REGISTER['REG_TYPE']['p_gain_velocity']    = 'cfg'
+REGISTER['REG_TYPE']['i_gain_velocity']    = 'cfg'
+REGISTER['REG_TYPE']['d_gain_velocity']    = 'cfg'
+REGISTER['REG_TYPE']['p_gain_position']    = 'cfg'
+REGISTER['REG_TYPE']['i_gain_position']    = 'cfg'
+REGISTER['REG_TYPE']['d_gain_position']    = 'cfg'
+REGISTER['REG_TYPE']['p_gain_force']       = 'cfg'
+REGISTER['REG_TYPE']['i_gain_force']       = 'cfg'
+REGISTER['REG_TYPE']['d_gain_force']       = 'cfg'
+REGISTER['REG_TYPE']['limit_acc_max']      = 'cfg'
+REGISTER['REG_TYPE']['limit_i_max']        = 'cfg'
+REGISTER['REG_TYPE']['limit_velocity_max'] = 'cfg'
+REGISTER['REG_TYPE']['limit_position_min'] = 'cfg'
+REGISTER['REG_TYPE']['limit_position_max'] = 'cfg'
+REGISTER['REG_TYPE']['min_voltage']        = 'cfg'
+REGISTER['REG_TYPE']['max_voltage']        = 'cfg'
+REGISTER['REG_TYPE']['watchdog_timeout']   = 'cfg'
+REGISTER['REG_TYPE']['temp_limit_low']     = 'cfg'
+REGISTER['REG_TYPE']['temp_limit_high']    = 'cfg'
 
-class CFG_REG:
-    """Configuration Registers"""
-    ID = 0x00
-    MODE = 0x01
-    BAUDRATE = 0x02
-    HOMING_OFFSET = 0x03
-    # Gains for Id current loop
-    P_GAIN_ID = 0x04
-    I_GAIN_ID = 0x05
-    D_GAIN_ID = 0x06
-    # Gains for Iq current loop
-    P_GAIN_IQ = 0x07
-    I_GAIN_IQ = 0x08
-    D_GAIN_IQ = 0x09
-    # Gains for velocity loop
-    P_GAIN_VEL = 0x0A
-    I_GAIN_VEL = 0x0B
-    D_GAIN_VEL = 0x0C
-    # Gains for position loop
-    P_GAIN_POS = 0x0D
-    I_GAIN_POS = 0x0E
-    D_GAIN_POS = 0x0F
-    # Gains for direct force loop
-    P_GAIN_FORCE = 0x10
-    I_GAIN_FORCE = 0x11
-    D_GAIN_FORCE = 0x12
-    # Limits
-    LIMIT_ACC_MAX = 0x13
-    LIMIT_I_MAX = 0x14
-    LIMIT_VEL_MAX = 0x15
-    LIMIT_POS_MIN = 0x16
-    LIMIT_POS_MAX = 0x17
-    MIN_VOLTAGE = 0x18
-    MAX_VOLTAGE = 0x19
-    # LOW_VOLTAGE_WARNING = 0x1A
-    WATCHDOG_TIMEOUT = 0x1A
-    TEMP_LIMIT_LOW = 0x1B  # Motor will start to limit power
-    TEMP_LIMIT_HIGH = 0x1C  # Motor will shutdown
+REGISTER['ADDRESS']['id']                 = 0x00
+REGISTER['ADDRESS']['mode']               = 0x01
+REGISTER['ADDRESS']['baudrate']           = 0x02
+REGISTER['ADDRESS']['homing_offset']      = 0x03
+REGISTER['ADDRESS']['p_gain_id']          = 0x04
+REGISTER['ADDRESS']['i_gain_id']          = 0x05
+REGISTER['ADDRESS']['d_gain_id']          = 0x06
+REGISTER['ADDRESS']['p_gain_iq']          = 0x07
+REGISTER['ADDRESS']['i_gain_iq']          = 0x08
+REGISTER['ADDRESS']['d_gain_iq']          = 0x09
+REGISTER['ADDRESS']['p_gain_velocity']    = 0x0A
+REGISTER['ADDRESS']['i_gain_velocity']    = 0x0B
+REGISTER['ADDRESS']['d_gain_velocity']    = 0x0C
+REGISTER['ADDRESS']['p_gain_position']    = 0x0D
+REGISTER['ADDRESS']['i_gain_position']    = 0x0E
+REGISTER['ADDRESS']['d_gain_position']    = 0x0F
+REGISTER['ADDRESS']['p_gain_force']       = 0x10
+REGISTER['ADDRESS']['i_gain_force']       = 0x11
+REGISTER['ADDRESS']['d_gain_force']       = 0x12
+REGISTER['ADDRESS']['limit_acc_max']      = 0x13
+REGISTER['ADDRESS']['limit_i_max']        = 0x14
+REGISTER['ADDRESS']['limit_velocity_max'] = 0x15
+REGISTER['ADDRESS']['limit_position_min'] = 0x16
+REGISTER['ADDRESS']['limit_position_max'] = 0x17
+REGISTER['ADDRESS']['min_voltage']        = 0x18
+REGISTER['ADDRESS']['max_voltage']        = 0x19
+REGISTER['ADDRESS']['watchdog_timeout']   = 0x1A
+REGISTER['ADDRESS']['temp_limit_low']     = 0x1B
+REGISTER['ADDRESS']['temp_limit_high']    = 0x1C
 
-    UINT_REG = [ID, MODE, BAUDRATE, WATCHDOG_TIMEOUT]
+REGISTER['DATA_TYPE']['id']                 = 'u32'
+REGISTER['DATA_TYPE']['mode']               = 'u32'
+REGISTER['DATA_TYPE']['baudrate']           = 'u32'
+REGISTER['DATA_TYPE']['homing_offset']      = 'f32'
+REGISTER['DATA_TYPE']['p_gain_id']          = 'f32'
+REGISTER['DATA_TYPE']['i_gain_id']          = 'f32'
+REGISTER['DATA_TYPE']['d_gain_id']          = 'f32'
+REGISTER['DATA_TYPE']['p_gain_iq']          = 'f32'
+REGISTER['DATA_TYPE']['i_gain_iq']          = 'f32'
+REGISTER['DATA_TYPE']['d_gain_iq']          = 'f32'
+REGISTER['DATA_TYPE']['p_gain_velocity']    = 'f32'
+REGISTER['DATA_TYPE']['i_gain_velocity']    = 'f32'
+REGISTER['DATA_TYPE']['d_gain_velocity']    = 'f32'
+REGISTER['DATA_TYPE']['p_gain_position']    = 'f32'
+REGISTER['DATA_TYPE']['i_gain_position']    = 'f32'
+REGISTER['DATA_TYPE']['d_gain_position']    = 'f32'
+REGISTER['DATA_TYPE']['p_gain_force']       = 'f32'
+REGISTER['DATA_TYPE']['i_gain_force']       = 'f32'
+REGISTER['DATA_TYPE']['d_gain_force']       = 'f32'
+REGISTER['DATA_TYPE']['limit_acc_max']      = 'f32'
+REGISTER['DATA_TYPE']['limit_i_max']        = 'f32'
+REGISTER['DATA_TYPE']['limit_velocity_max'] = 'f32'
+REGISTER['DATA_TYPE']['limit_position_min'] = 'f32'
+REGISTER['DATA_TYPE']['limit_position_max'] = 'f32'
+REGISTER['DATA_TYPE']['min_voltage']        = 'f32'
+REGISTER['DATA_TYPE']['max_voltage']        = 'f32'
+REGISTER['DATA_TYPE']['watchdog_timeout']   = 'u32'
+REGISTER['DATA_TYPE']['temp_limit_low']     = 'f32'
+REGISTER['DATA_TYPE']['temp_limit_high']    = 'f32'
 
+# Status
+REGISTER['REG_TYPE']['torque_enable']          = 'stat'
+REGISTER['REG_TYPE']['homing_complete']        = 'stat'
+REGISTER['REG_TYPE']['goal_id']                = 'stat'
+REGISTER['REG_TYPE']['goal_iq']                = 'stat'
+REGISTER['REG_TYPE']['goal_velocity']          = 'stat'
+REGISTER['REG_TYPE']['goal_position']          = 'stat'
+REGISTER['REG_TYPE']['present_id']             = 'stat'
+REGISTER['REG_TYPE']['present_iq']             = 'stat'
+REGISTER['REG_TYPE']['present_velocity']       = 'stat'
+REGISTER['REG_TYPE']['present_position']       = 'stat'
+REGISTER['REG_TYPE']['input_voltage']          = 'stat'
+REGISTER['REG_TYPE']['winding_temperature']    = 'stat'
+REGISTER['REG_TYPE']['powerstage_temperature'] = 'stat'
+REGISTER['REG_TYPE']['ic_temperature']         = 'stat'
+REGISTER['REG_TYPE']['error_status']           = 'stat'
+REGISTER['REG_TYPE']['warning_status']         = 'stat'
 
-CFG_REG_DIC = {'id': CFG_REG.ID,
-               'mode': CFG_REG.MODE,
-               'baudrate': CFG_REG.BAUDRATE,
-               'homing_offset': CFG_REG.HOMING_OFFSET,
-               'p_gain_id': CFG_REG.P_GAIN_ID,
-               'i_gain_id': CFG_REG.I_GAIN_ID,
-               'd_gain_id': CFG_REG.D_GAIN_ID,
-               'p_gain_iq': CFG_REG.P_GAIN_IQ,
-               'i_gain_iq': CFG_REG.I_GAIN_IQ,
-               'd_gain_iq': CFG_REG.D_GAIN_IQ,
-               'p_gain_velocity': CFG_REG.P_GAIN_VEL,
-               'i_gain_velocity': CFG_REG.I_GAIN_VEL,
-               'd_gain_velocity': CFG_REG.D_GAIN_VEL,
-               'p_gain_position': CFG_REG.P_GAIN_POS,
-               'i_gain_position': CFG_REG.I_GAIN_POS,
-               'd_gain_position': CFG_REG.D_GAIN_POS,
-               'p_gain_direct_force': CFG_REG.P_GAIN_FORCE,
-               'i_gain_direct_force': CFG_REG.I_GAIN_FORCE,
-               'd_gain_direct_force': CFG_REG.D_GAIN_FORCE,
-               'limit_acc_max': CFG_REG.LIMIT_ACC_MAX,
-               'limit_i_max': CFG_REG.LIMIT_I_MAX,
-               'limit_iq_max': CFG_REG.LIMIT_I_MAX,
-               'limit_velocity_max': CFG_REG.LIMIT_VEL_MAX,
-               'limit_position_min': CFG_REG.LIMIT_POS_MIN,
-               'limit_position_max': CFG_REG.LIMIT_POS_MAX,
-               'min_voltage': CFG_REG.MIN_VOLTAGE,
-               'max_voltage': CFG_REG.MAX_VOLTAGE,
-               # 'low_voltage_warning': CFG_REG.LOW_VOLTAGE_WARNING,
-               'watchdog_timeout': CFG_REG.WATCHDOG_TIMEOUT,
-               'temp_limit_low': CFG_REG.TEMP_LIMIT_LOW,
-               'temp_limit_high': CFG_REG.TEMP_LIMIT_HIGH}
+REGISTER['ADDRESS']['torque_enable']          = 0x00
+REGISTER['ADDRESS']['homing_complete']        = 0x01
+REGISTER['ADDRESS']['goal_id']                = 0x02
+REGISTER['ADDRESS']['goal_iq']                = 0x03
+REGISTER['ADDRESS']['goal_velocity']          = 0x04
+REGISTER['ADDRESS']['goal_position']          = 0x05
+REGISTER['ADDRESS']['present_id']             = 0x06
+REGISTER['ADDRESS']['present_iq']             = 0x07
+REGISTER['ADDRESS']['present_velocity']       = 0x08
+REGISTER['ADDRESS']['present_position']       = 0x09
+REGISTER['ADDRESS']['input_voltage']          = 0x0A
+REGISTER['ADDRESS']['winding_temperature']    = 0x0B
+REGISTER['ADDRESS']['powerstage_temperature'] = 0x0C
+REGISTER['ADDRESS']['ic_temperature']         = 0x0D
+REGISTER['ADDRESS']['error_status']           = 0x0E
+REGISTER['ADDRESS']['warning_status']         = 0x0F
 
-
-class STAT_REG:
-    """Status Registers"""
-    TORQUE_ENABLE = 0x00  # Enable output
-    HOMING_COMPLETE = 0x01
-    GOAL_ID = 0x02
-    GOAL_IQ = 0x03
-    GOAL_VEL = 0x04
-    GOAL_POS = 0x05
-    PRESENT_ID = 0x06
-    PRESENT_IQ = 0x07
-    PRESENT_VEL = 0x08
-    PRESENT_POS = 0x09
-    INPUT_VOLTAGE = 0x0A
-    WINDING_TEMP = 0x0B
-    POWERSTAGE_TEMP = 0x0C
-    IC_TEMP = 0x0D
-    ERROR_STATUS = 0x0E
-    WARNING_STATUS = 0x0F
-
-
-STAT_REG_DIC = {'torque_enable': STAT_REG.TORQUE_ENABLE,
-                'homing_complete': STAT_REG.HOMING_COMPLETE,
-                'goal_id': STAT_REG.GOAL_ID,
-                'goal_iq': STAT_REG.GOAL_IQ,
-                'goal_velocity': STAT_REG.GOAL_VEL,
-                'goal_position': STAT_REG.GOAL_POS,
-                'present_id': STAT_REG.PRESENT_ID,
-                'present_iq': STAT_REG.PRESENT_IQ,
-                'present_velocity': STAT_REG.PRESENT_VEL,
-                'present_position': STAT_REG.PRESENT_POS,
-                'input_voltage': STAT_REG.INPUT_VOLTAGE,
-                'winding_temperature': STAT_REG.WINDING_TEMP,
-                'powerstage_temperature': STAT_REG.POWERSTAGE_TEMP,
-                'ic_temperature': STAT_REG.IC_TEMP,
-                'error_status': STAT_REG.ERROR_STATUS,
-                'warning_status': STAT_REG.WARNING_STATUS}
+REGISTER['DATA_TYPE']['torque_enable']          = 'u32'
+REGISTER['DATA_TYPE']['homing_complete']        = 'u32'
+REGISTER['DATA_TYPE']['goal_id']                = 'f32'
+REGISTER['DATA_TYPE']['goal_iq']                = 'f32'
+REGISTER['DATA_TYPE']['goal_velocity']          = 'f32'
+REGISTER['DATA_TYPE']['goal_position']          = 'f32'
+REGISTER['DATA_TYPE']['present_id']             = 'f32'
+REGISTER['DATA_TYPE']['present_iq']             = 'f32'
+REGISTER['DATA_TYPE']['present_velocity']       = 'f32'
+REGISTER['DATA_TYPE']['present_position']       = 'f32'
+REGISTER['DATA_TYPE']['input_voltage']          = 'f32'
+REGISTER['DATA_TYPE']['winding_temperature']    = 'f32'
+REGISTER['DATA_TYPE']['powerstage_temperature'] = 'f32'
+REGISTER['DATA_TYPE']['ic_temperature']         = 'f32'
+REGISTER['DATA_TYPE']['error_status']           = 'u32'
+REGISTER['DATA_TYPE']['warning_status']         = 'u32'

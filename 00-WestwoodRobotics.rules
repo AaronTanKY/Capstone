@@ -1,3 +1,11 @@
+# __author__    = "Westwood Robotics Corporation"
+# __email__     = "info@westwoodrobotics.io"
+# __copyright__ = "Copyright 2025 Westwood Robotics Corporation"
+# __date__      = "July 29, 2025"
+# __project__   = "PyBEAR"
+# __version__   = "0.1.3"
+# __status__    = "Production"
+
 # Move rules file into /etc/udev/rules.d/ with 'sudo cp'
 # Run 'sudo udevadm control --reload' in terminal to process the rules files
 # You will have a symlink that is: '/dev/serial#', in which the serial# is the serial of the usb dangle
@@ -9,6 +17,5 @@
 # Use udevadm to get detailed info of your device.
 # For example, if your device is ttyUSB0, you can try: 'udevadm info --attribute-walk -n /dev/ttyUSB0'
 
-SUBSYSTEM=="tty", ATTRS{product}=="USB2RoMeLa_Boosted", SYMLINK="%s{serial}"
-SUBSYSTEM=="tty", ATTRS{product}=="USB2BEAR_Boosted", SYMLINK="%s{serial}"
-
+SUBSYSTEM=="tty", ATTRS{product}=="USB2RoMeLa_Boosted", ACTION=="add", SYMLINK="%s{serial}"
+SUBSYSTEM=="tty", ATTRS{product}=="USB2BEAR_Boosted", ACTION=="add", SYMLINK="%s{serial}"

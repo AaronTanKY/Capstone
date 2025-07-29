@@ -1,9 +1,11 @@
 # PyBEAR
+**Note: We have officially stopped supporting Python2. While it is still possible to use PyBEAR with Python 2, please be aware that certain functions may no longer be functional.**
+
 This is the Python SDK for the Westwood Robotics actuator module BEAR (Back-drivable Electromechanical Actuator for Robotics).
 
-Current version: 0.1.2
+Current version: 0.1.3
 
-In this version, the return format is always [[[data1, data2 ...], error], [[data1, data2 ...], error] ...] no matter if returning only one register or more per BEAR.
+In this version, the return format is always [([data1, data2, ...], error), ([data1, data2, ...], error), ...] no matter if returning only one register or more per BEAR.
 
 ### Contact
 Website: www.westwoodrobotics.io
@@ -41,32 +43,21 @@ sudo chown -R your_username /usr/local
 sudo usermod -a -G dialout your_username
 ```
 
-2. CD into PyBEAR/ directory and use pip/pip3 to install the package.
+2. CD into PyBEAR/ directory and use pip3 to install the package(Python3).
 
-Python2
-```bash
-pip install .
-```
-
-Python3
 ```bash
 pip3 install .
 ```
-3.Make sure pyserial and numpy are installed. You can check this by running 
-```bash
-pip show pyserial numpy
-```
-or 
-```bash
-pip3 show pyserial numpy
-```
 
-Othewise, install the missing package(s).
+3. Make sure pyserial, numpy, termcolor are installed. Othewise, install the missing package(s). You can check this by running: 
+
+```bash
+pip3 show pyserial numpy termcolor
+```
 
 4. Enjoy!
 
 ## SDK Manual
-Download the latest SDK Manual from www.westwoodrobotics.io for detailed instructions, helpful tips and various examples.
+Download the latest SDK Manual from www.westwoodrobotics.io for detailed instructions, helpful tips, and various examples.
 
-For detailed examples please refer to the SDK: https://westwoodrobotics.io/support/
-
+For detailed examples please refer to the SDK from https://westwoodrobotics.io/support/.
