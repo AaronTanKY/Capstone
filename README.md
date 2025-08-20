@@ -8,7 +8,7 @@ Current version: 0.1.3
 In this version, the return format is always [([data1, data2, ...], error), ([data1, data2, ...], error), ...] no matter if returning only one register or more per BEAR. 
 
 ### New function: set_posi()
-A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)). If tolerance is non-zero, BEAR tries to find the multi-turn value to match the expected position within the tolerance. If tolerance is zero, BEAR modifies the homing offset to match the expected position. 
+A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)).
 
 ### Contact
 Website: www.westwoodrobotics.io
@@ -66,4 +66,28 @@ Download the latest SDK Manual from www.westwoodrobotics.io for detailed instruc
 For detailed examples please refer to the SDK from https://westwoodrobotics.io/support/.
 
 ### New function in 0.1.3: set_posi()
-A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)). If tolerance is non-zero, BEAR tries to find the multi-turn value to match the expected position within the tolerance. If tolerance is zero, BEAR modifies the homing offset to match the expected position. 
+A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)). If tolerance is non-zero, BEAR tries to find the multi-turn value to match the expected position within the tolerance. If tolerance is zero, BEAR modifies the homing offset to match the expected position. A save_config() action will be performed automatically once set_posi() is successfully excuted. 
+
+**Note: set_posi() only works with BEARs with battery-backed encoders: Panda, Kodiak and Mountain.**
+
+When BEAR is free from Absolute Position error, Hardware Fault or Initialization error, set_posi() can be used to find homing offset autonomously. For example:
+```bash
+# Find and set homing offset for BEAR with ID 1 so that the present position is 2.0
+id = 1
+position = 2.0
+tolerance = 0.0
+bear.set_posi((id, position, tolerance))
+```
+If BEAR is in Absolute Position error, set_posi() can be used to clear it. 
+**Note: set to non-zero tolerance when using set_posi() to clear Absolute Position error, then disable to clear the error.**
+For example:
+```bash
+# Clear Absolute Position error on BEAR with ID 5 and find offset to make present position 0.0
+id = 5
+position = 0.0
+tolerance = 0.2
+bear.set_posi((id, position, tolerance))
+bear.set_torque_enable((id,0))
+```
+
+
