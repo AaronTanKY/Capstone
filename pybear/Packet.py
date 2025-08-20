@@ -181,7 +181,7 @@ class PKT(object):
         instruction_packet[-1] = self.checksum(instruction_packet)
         self.send_packet(instruction_packet)
 
-    def _set_position(self, m_id, position, tolerance):
+    def _set_posi(self, m_id, position, tolerance):
         """
         Set absolute position of a single BEAR
         """
