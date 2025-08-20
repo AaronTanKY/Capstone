@@ -64,3 +64,6 @@ pip3 show pyserial numpy termcolor
 Download the latest SDK Manual from www.westwoodrobotics.io for detailed instructions, helpful tips, and various examples.
 
 For detailed examples please refer to the SDK from https://westwoodrobotics.io/support/.
+
+### New function in 0.1.3: set_posi()
+A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)). If tolerance is non-zero, BEAR tries to find the multi-turn value to match the expected position within the tolerance. If tolerance is zero, BEAR modifies the homing offset to match the expected position. 
