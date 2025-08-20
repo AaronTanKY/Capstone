@@ -346,12 +346,12 @@ class BEAR(Packet.PKT):
         for data in argv:
             self._save_config(data)
 
-    def set_position(self, *argv):
+    def set_posi(self, *argv):
         """
-        Set BEAR absolute position, e.g., set_position((id1, pos1, tol1), (id2, pos2, tol2))
+        Set BEAR absolute position, e.g., set_posi((id1, pos1, tol1), (id2, pos2, tol2))
         """
         for data in argv:
-            self._set_position(data[0], data[1], data[2])
+            self._set_posi(data[0], data[1], data[2])
 
     def single_read(self, bear, reg_name_list):
         """

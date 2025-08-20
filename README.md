@@ -5,7 +5,9 @@ This is the Python SDK for the Westwood Robotics actuator module BEAR (Back-driv
 
 Current version: 0.1.3
 
-In this version, the return format is always [([data1, data2, ...], error), ([data1, data2, ...], error), ...] no matter if returning only one register or more per BEAR.
+In this version, the return format is always [([data1, data2, ...], error), ([data1, data2, ...], error), ...] no matter if returning only one register or more per BEAR. 
+
+A new function set_posi() is added to clear absolute position error on BEAR, e.g., set_posi((id, position, tolerance)). If tolerance is non-zero, BEAR tries to find the multi-turn value to match the expected position within the tolerance. If tolerance is zero, BEAR modifies the homing offset to match the expected position. 
 
 ### Contact
 Website: www.westwoodrobotics.io
