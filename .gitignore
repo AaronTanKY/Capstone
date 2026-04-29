@@ -1,0 +1,5 @@
+# Virtual environment (created by uv)
+.venv/
+
+# uv-specific (only if you don't want to sync python versions across machines)
+.python-version
