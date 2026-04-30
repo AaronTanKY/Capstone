@@ -10,6 +10,15 @@ BAUDRATE = 8000000
 BEAR_ID = 1
 
 
+def read_register(bear, bear_id, getter):
+    """
+    Read a single register using a Manager getter and return value plus error code.
+    """
+    data, error_code = getter(bear_id)[0]
+    value = data[0] if data else None
+    return value, error_code
+
+
 def get_all_info(bear, bear_id):
     """
     Retrieve all BEAR configuration and status information.
@@ -23,85 +32,88 @@ def get_all_info(bear, bear_id):
     """
     try:
         info = {}
+        errors = {}
         
         # Test connection first
-        ping_result = bear.ping(bear_id)
-        if ping_result[0][0] is None:
+        ping_value, ping_error = bear.ping(bear_id)[0]
+        if ping_value[0] is None:
             print(f"Error: Cannot ping BEAR ID {bear_id}")
             return None
+
+        errors['ping'] = ping_error
         
         print(f"Retrieving all information from BEAR ID {bear_id}...")
         
         # === Configuration Registers ===
-        info['id'] = bear.get_id(bear_id)[0][0][0]
-        info['mode'] = bear.get_mode(bear_id)[0][0][0]
-        info['baudrate'] = bear.get_baudrate(bear_id)[0][0][0]
-        info['homing_offset'] = bear.get_homing_offset(bear_id)[0][0][0]
+        info['id'], errors['id'] = read_register(bear, bear_id, bear.get_id)
+        info['mode'], errors['mode'] = read_register(bear, bear_id, bear.get_mode)
+        info['baudrate'], errors['baudrate'] = read_register(bear, bear_id, bear.get_baudrate)
+        info['homing_offset'], errors['homing_offset'] = read_register(bear, bear_id, bear.get_homing_offset)
         
         # ID Control Gains
-        info['p_gain_id'] = bear.get_p_gain_id(bear_id)[0][0][0]
-        info['i_gain_id'] = bear.get_i_gain_id(bear_id)[0][0][0]
-        info['d_gain_id'] = bear.get_d_gain_id(bear_id)[0][0][0]
+        info['p_gain_id'], errors['p_gain_id'] = read_register(bear, bear_id, bear.get_p_gain_id)
+        info['i_gain_id'], errors['i_gain_id'] = read_register(bear, bear_id, bear.get_i_gain_id)
+        info['d_gain_id'], errors['d_gain_id'] = read_register(bear, bear_id, bear.get_d_gain_id)
         
         # IQ Control Gains
-        info['p_gain_iq'] = bear.get_p_gain_iq(bear_id)[0][0][0]
-        info['i_gain_iq'] = bear.get_i_gain_iq(bear_id)[0][0][0]
-        info['d_gain_iq'] = bear.get_d_gain_iq(bear_id)[0][0][0]
+        info['p_gain_iq'], errors['p_gain_iq'] = read_register(bear, bear_id, bear.get_p_gain_iq)
+        info['i_gain_iq'], errors['i_gain_iq'] = read_register(bear, bear_id, bear.get_i_gain_iq)
+        info['d_gain_iq'], errors['d_gain_iq'] = read_register(bear, bear_id, bear.get_d_gain_iq)
         
         # Velocity Control Gains
-        info['p_gain_velocity'] = bear.get_p_gain_velocity(bear_id)[0][0][0]
-        info['i_gain_velocity'] = bear.get_i_gain_velocity(bear_id)[0][0][0]
-        info['d_gain_velocity'] = bear.get_d_gain_velocity(bear_id)[0][0][0]
+        info['p_gain_velocity'], errors['p_gain_velocity'] = read_register(bear, bear_id, bear.get_p_gain_velocity)
+        info['i_gain_velocity'], errors['i_gain_velocity'] = read_register(bear, bear_id, bear.get_i_gain_velocity)
+        info['d_gain_velocity'], errors['d_gain_velocity'] = read_register(bear, bear_id, bear.get_d_gain_velocity)
         
         # Position Control Gains
-        info['p_gain_position'] = bear.get_p_gain_position(bear_id)[0][0][0]
-        info['i_gain_position'] = bear.get_i_gain_position(bear_id)[0][0][0]
-        info['d_gain_position'] = bear.get_d_gain_position(bear_id)[0][0][0]
+        info['p_gain_position'], errors['p_gain_position'] = read_register(bear, bear_id, bear.get_p_gain_position)
+        info['i_gain_position'], errors['i_gain_position'] = read_register(bear, bear_id, bear.get_i_gain_position)
+        info['d_gain_position'], errors['d_gain_position'] = read_register(bear, bear_id, bear.get_d_gain_position)
         
         # Force Control Gains
-        info['p_gain_force'] = bear.get_p_gain_force(bear_id)[0][0][0]
-        info['i_gain_force'] = bear.get_i_gain_force(bear_id)[0][0][0]
-        info['d_gain_force'] = bear.get_d_gain_force(bear_id)[0][0][0]
+        info['p_gain_force'], errors['p_gain_force'] = read_register(bear, bear_id, bear.get_p_gain_force)
+        info['i_gain_force'], errors['i_gain_force'] = read_register(bear, bear_id, bear.get_i_gain_force)
+        info['d_gain_force'], errors['d_gain_force'] = read_register(bear, bear_id, bear.get_d_gain_force)
         
         # Limits
-        info['limit_acc_max'] = bear.get_limit_acc_max(bear_id)[0][0][0]
-        info['limit_i_max'] = bear.get_limit_i_max(bear_id)[0][0][0]
-        info['limit_velocity_max'] = bear.get_limit_velocity_max(bear_id)[0][0][0]
-        info['limit_position_min'] = bear.get_limit_position_min(bear_id)[0][0][0]
-        info['limit_position_max'] = bear.get_limit_position_max(bear_id)[0][0][0]
+        info['limit_acc_max'], errors['limit_acc_max'] = read_register(bear, bear_id, bear.get_limit_acc_max)
+        info['limit_i_max'], errors['limit_i_max'] = read_register(bear, bear_id, bear.get_limit_i_max)
+        info['limit_velocity_max'], errors['limit_velocity_max'] = read_register(bear, bear_id, bear.get_limit_velocity_max)
+        info['limit_position_min'], errors['limit_position_min'] = read_register(bear, bear_id, bear.get_limit_position_min)
+        info['limit_position_max'], errors['limit_position_max'] = read_register(bear, bear_id, bear.get_limit_position_max)
         
         # Voltage Limits
-        info['min_voltage'] = bear.get_min_voltage(bear_id)[0][0][0]
-        info['max_voltage'] = bear.get_max_voltage(bear_id)[0][0][0]
+        info['min_voltage'], errors['min_voltage'] = read_register(bear, bear_id, bear.get_min_voltage)
+        info['max_voltage'], errors['max_voltage'] = read_register(bear, bear_id, bear.get_max_voltage)
         
         # Temperature Limits
-        info['temp_limit_low'] = bear.get_temp_limit_low(bear_id)[0][0][0]
-        info['temp_limit_high'] = bear.get_temp_limit_high(bear_id)[0][0][0]
+        info['temp_limit_low'], errors['temp_limit_low'] = read_register(bear, bear_id, bear.get_temp_limit_low)
+        info['temp_limit_high'], errors['temp_limit_high'] = read_register(bear, bear_id, bear.get_temp_limit_high)
         
         # Watchdog
-        info['watchdog_timeout'] = bear.get_watchdog_timeout(bear_id)[0][0][0]
+        info['watchdog_timeout'], errors['watchdog_timeout'] = read_register(bear, bear_id, bear.get_watchdog_timeout)
         
         # === Status Registers ===
-        info['torque_enable'] = bear.get_torque_enable(bear_id)[0][0][0]
-        info['goal_id'] = bear.get_goal_id(bear_id)[0][0][0]
-        info['goal_iq'] = bear.get_goal_iq(bear_id)[0][0][0]
-        info['goal_velocity'] = bear.get_goal_velocity(bear_id)[0][0][0]
-        info['goal_position'] = bear.get_goal_position(bear_id)[0][0][0]
+        info['torque_enable'], errors['torque_enable'] = read_register(bear, bear_id, bear.get_torque_enable)
+        info['goal_id'], errors['goal_id'] = read_register(bear, bear_id, bear.get_goal_id)
+        info['goal_iq'], errors['goal_iq'] = read_register(bear, bear_id, bear.get_goal_iq)
+        info['goal_velocity'], errors['goal_velocity'] = read_register(bear, bear_id, bear.get_goal_velocity)
+        info['goal_position'], errors['goal_position'] = read_register(bear, bear_id, bear.get_goal_position)
         
         # Present Values
-        info['present_id'] = bear.get_present_id(bear_id)[0][0][0]
-        info['present_iq'] = bear.get_present_iq(bear_id)[0][0][0]
-        info['present_velocity'] = bear.get_present_velocity(bear_id)[0][0][0]
-        info['present_position'] = bear.get_present_position(bear_id)[0][0][0]
+        info['present_id'], errors['present_id'] = read_register(bear, bear_id, bear.get_present_id)
+        info['present_iq'], errors['present_iq'] = read_register(bear, bear_id, bear.get_present_iq)
+        info['present_velocity'], errors['present_velocity'] = read_register(bear, bear_id, bear.get_present_velocity)
+        info['present_position'], errors['present_position'] = read_register(bear, bear_id, bear.get_present_position)
         
         # Sensor Values
-        info['input_voltage'] = bear.get_input_voltage(bear_id)[0][0][0]
-        info['winding_temperature'] = bear.get_winding_temperature(bear_id)[0][0][0]
-        info['powerstage_temperature'] = bear.get_powerstage_temperature(bear_id)[0][0][0]
-        info['ic_temperature'] = bear.get_ic_temperature(bear_id)[0][0][0]
+        info['input_voltage'], errors['input_voltage'] = read_register(bear, bear_id, bear.get_input_voltage)
+        info['winding_temperature'], errors['winding_temperature'] = read_register(bear, bear_id, bear.get_winding_temperature)
+        info['powerstage_temperature'], errors['powerstage_temperature'] = read_register(bear, bear_id, bear.get_powerstage_temperature)
+        info['ic_temperature'], errors['ic_temperature'] = read_register(bear, bear_id, bear.get_ic_temperature)
         
         print("Successfully retrieved all information.")
-        return info
+        return {'values': info, 'errors': errors}
         
     except Exception as e:
         print(f"Error retrieving BEAR information: {e}")
@@ -189,6 +201,12 @@ def set_all_info(bear, bear_id, config_dict, save_to_flash=False):
             else:
                 print(f"  Warning: {param_name} is read-only and cannot be set")
         
+        # Explicitly set position if needed
+        position_reset = config_dict.get('position_reset')
+        if position_reset is not None:
+            print(f"  Setting position to {position_reset}...")
+            bear.set_posi((active_bear_id, position_reset, 0.2))
+        
         # Save to flash if requested
         if save_to_flash:
             print("Disabling torque before saving to flash...")
@@ -208,6 +226,33 @@ def set_all_info(bear, bear_id, config_dict, save_to_flash=False):
         return None
 
 
+def scan_bear_ids(bear, verbose=False):
+    """
+    Scan all possible BEAR IDs (1-255) and report which ones can be pinged.
+    
+    Args:
+        bear: Manager.BEAR instance
+        verbose: If True, prints status for each ID checked; if False, only prints found IDs
+    
+    Returns:
+        List of IDs that successfully responded to ping
+    """
+    found_ids = []
+    print("Scanning for BEAR motors on the bus...")
+    
+    for bear_id in range(0, 255):
+        ping_value, ping_error = bear.ping(bear_id)[0]
+        if ping_value[0] is None:
+            print(f"  ✗ ID {bear_id}: No response")
+        else:
+            found_ids.append(bear_id)
+            print(f"  ✓ Found BEAR ID {bear_id}")
+        
+    
+    print(f"\nScan complete. Found {len(found_ids)} BEAR(s): {found_ids}")
+    return found_ids
+
+
 def get_info_example(bear, id):
     """
     Example function demonstrating how to use get_all_info.
@@ -217,8 +262,10 @@ def get_info_example(bear, id):
     
     if all_info:
         print("\n=== Current BEAR Configuration ===")
-        for key, value in all_info.items():
-            print(f"{key}: {value}")
+        values = all_info['values']
+        errors = all_info['errors']
+        for key, value in values.items():
+            print(f"{key}: {value} | error: {errors.get(key)}")
 
 def set_info_example(bear, save_to_flash):
     """
@@ -245,16 +292,22 @@ if __name__ == "__main__":
     # Initialize bear
     bear = Manager.BEAR(port=PORT, baudrate=BAUDRATE)
     
-    # Getting all info
-    get_info_example(bear=bear, id=3)
-    
-    # # Setting necessary info
-    # updated_bear_id = set_info_example(bear=bear, save_to_flash=True)
-    # if updated_bear_id is None:
-    #     updated_bear_id = BEAR_ID
+    # # Scan for ID
+    # scan_bear_ids(bear=bear)
 
-    # # Seeing if setting works
-    # get_info_example(bear=bear, id=updated_bear_id)
+    # Getting all info
+    get_info_example(bear=bear, id=BEAR_ID)
+    input('This is current config. Press ENTER to set configs.')
+    
+    # Setting necessary info
+    updated_bear_id = set_info_example(bear=bear, save_to_flash=True)
+    if updated_bear_id is None:
+        updated_bear_id = BEAR_ID
+    input('Configs updated. Press ENTER to see new configs.')
+
+    # Seeing if setting works
+    get_info_example(bear=bear, id=updated_bear_id)
+    input('New config printed. Press ENTER to close.')
     
     
     
