@@ -12,18 +12,22 @@ Move BEAR from the current angle to a specified angle
 '''
 
 import time
-from pybear import Manager
+import sys
+from pathlib import Path
+
+try:
+    from pybear import Manager
+except ModuleNotFoundError:
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from pybear import Manager
 
 
 error = False
-bear = Manager.BEAR(port="/dev/ttyUSB0", baudrate=8000000)  # need to identify the port name on your PC
+bear = Manager.BEAR(port="COM3", baudrate=8000000)  # change this to your device port
 
-m_id = 1  # BEAR ID (default is 1)
-
-p_gain = 5.0  # Set P gain as spring stiffness
-d_gain = 0.2  # Set D gain as damper strength
-i_gain = 0.0  # I gain is usually not needed
-iq_max = 1.5  # Max iq
+m_id = 3  # BEAR ID (default is 1)
 
 BEAR_connected = bear.ping(m_id)[0][1] is not None
 if not BEAR_connected:
@@ -34,26 +38,8 @@ if not BEAR_connected:
 
 if not error:
     # BEAR is online
-    # Set PID, mode, and limit
+    # This example intentionally avoids changing configured gains/limits.
     print("Welcome aboard, Captain!")
-    # PID id/iq
-    bear.set_p_gain_iq((m_id, 0.02))
-    bear.set_i_gain_iq((m_id, 0.02))
-    bear.set_d_gain_iq((m_id, 0))
-    bear.set_p_gain_id((m_id, 0.02))
-    bear.set_i_gain_id((m_id, 0.02))
-    bear.set_d_gain_id((m_id, 0))
-
-    # PID position mode
-    bear.set_p_gain_position((m_id, p_gain))
-    bear.set_i_gain_position((m_id, i_gain))
-    bear.set_d_gain_position((m_id, d_gain))
-
-    # Put into position mode
-    bear.set_mode((m_id, 2))
-
-    # Set iq limit
-    bear.set_limit_i_max((m_id, iq_max))
 
     # Start demo
     input('Press Enter to start demo. ')
@@ -62,14 +48,14 @@ if not error:
     home = bear.get_present_position(m_id)[0][0][0]
     print(home)
 
-    # Set goal position before enabling BEAR
+    # Set goal position before enabling torque
     bear.set_goal_position((m_id, home))
 
     # Enable BEAR
     bear.set_torque_enable((m_id, 1))
 
-    # Demo spring-damping system
-    print('You can play with BEAR now! It is simulating a spring-damping system.')
+    # Move to the user-selected target angle.
+    print('You can move BEAR now using your existing configuration.')
     time.sleep(2)
 
     # Get command position

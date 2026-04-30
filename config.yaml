@@ -1,0 +1,33 @@
+# BEAR Motor Configuration
+# Set values to null to skip setting that parameter
+# Remove entries entirely to skip them
+
+# Basic Configuration
+id: 3
+
+# ID Control Gains
+p_gain_id: 0.358
+i_gain_id: 0.045
+d_gain_id: 0
+
+# IQ Control Gains
+p_gain_iq: 0.358
+i_gain_iq: 0.045
+d_gain_iq: 0
+
+# Velocity Control Gains
+p_gain_velocity: 0.5
+i_gain_velocity: 0
+d_gain_velocity: 0
+
+# Position Control Gains
+p_gain_position: 10
+i_gain_position: 0
+d_gain_position: 1
+
+# Safety
+limit_acc_max: 1
+limit_i_max: 2
+limit_velocity_max: 2
+limit_position_min: null
+limit_position_max: null

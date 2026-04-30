@@ -23,40 +23,27 @@ Use at own risk when using other generic RS485 dangles.
 
 ###
 
-## Udev Rules
-When using the Boosted USB2BEAR/USB2RoMeLa device, you can use udev rules to allow local machine to asign a unique SYMLINK according to the serial number of the USB dangle.
-1. Move 00-WestwoodRobotics.rules file into /etc/udev/rules.d/ with 'sudo cp'
-2. Reload the rules
-```bash
-sudo udevadm control --reload
-```
+## Serial Port Setup
+On Linux, you can use udev rules to create a stable `/dev/...` symlink for the adapter.
+On Windows, the adapter shows up as a `COM` port and you should pass that port name directly, for example `COM7`.
 
-Everytime a  Boosted USB2BEAR/USB2RoMeLa device is plugged in, a symlink that is: '/dev/serial#' will be created.
-For example, a device with serial number UB021 will have this SYMLINK: /dev/UB021
-
-USB2RoMeLa from RoMeLa has 3 digit hexadecimal serial numbers.
-
-USB2BEAR from Westwood Robotics has 4 digit hexadecimal serial numbers.
+The SDK itself works cross-platform through `pyserial`; the main thing to change is the port you pass into `Manager.BEAR(...)`.
 
 
 ## Installation Procedure
-1. Modify the permissions of your computer such that PyBEAR can access the serial port.
-```bash
-sudo chown -R your_username /usr/local
-sudo usermod -a -G dialout your_username
-```
-
-2. CD into PyBEAR/ directory and use pip3 to install the package(Python3).
+1. CD into PyBEAR/ directory and install the package with Python 3.
 
 ```bash
-pip3 install .
+pip install .
 ```
 
-3. Make sure pyserial, numpy, termcolor are installed. Othewise, install the missing package(s). You can check this by running: 
+2. Make sure pyserial, numpy, and termcolor are installed. Otherwise install the missing packages. You can check this by running: 
 
 ```bash
-pip3 show pyserial numpy termcolor
+pip show pyserial numpy termcolor
 ```
+
+3. Use the correct serial port for your OS when creating `Manager.BEAR(...)`.
 
 4. Enjoy!
 

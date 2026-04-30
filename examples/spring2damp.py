@@ -13,7 +13,7 @@ BEAR with a bar, spring on one side, damper on the other side, with the 90 degre
 
 import os
 import sys
-import select
+import msvcrt
 from pybear import Manager
 
 
@@ -88,8 +88,8 @@ if not error:
             if iq > iq_max:
                 print("iq max reached.")
         print("Press any key to stop.")
-        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            line = input()
+        if msvcrt.kbhit():
+            msvcrt.getch()
             run = False
             print("Demo terminated by user.")
             break
