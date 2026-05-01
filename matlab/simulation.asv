@@ -1,0 +1,36 @@
+clc; clear; close all;
+
+%% 1. Create the Robot Tree
+robot = rigidBodyTree('DataFormat', 'column');
+base = robot.Base;
+
+rotatingBase = rigidBody("rotating_base");
+link1 = rigidBody("link1");
+link2 = rigidBody("link2");
+link3 = rigidBody("link3");
+link4 = rigidBody("link4");
+gripper = rigidBody("gripper");
+
+collBase = collisionCylinder(0.016,0.01); % cylinder: radius,length
+collBase.Pose = trvec2tform([0 -0.01/2 0]) * eul2tform([pi/2 0 0], 'XYZ');
+coll1 = collisionCylinder(0.009,0.045);
+coll1.Pose = trvec2tform([0 0.045/2 0]) * eul2tform([pi/2 0 0], 'XYZ');
+% coll2 = collisionBox(0.01,0.02,0.15); % box: length, width, height (x,y,z)
+% coll2.Pose = trvec2tform([0 0 0.15/2]);
+% coll3 = collisionBox(0.01,0.02,0.15); % box: length, width, height (x,y,z)
+% coll3.Pose = trvec2tform([0 0 0.15/2]);
+% collGripper = collisionSphere(0.025); % sphere: radius
+% collGripper.Pose = trvec2tform([0 -0.015 0.025/2]);
+
+addCollision(rotatingBase,collBase)
+addCollision(link1,coll1)
+% addCollision(link2,coll2)
+% addCollision(link3,coll3)
+% addCollision(link4,coll4)
+% addCollision(gripper,collGripper)
+
+jntBase = rigidBodyJoint("base_joint","re");
+jnt1 = rigidBodyJoint("jnt1","revolute");
+
+% This opens a figure and shows the cylinder with its Pose applied
+show(coll1); 
