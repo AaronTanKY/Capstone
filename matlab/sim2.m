@@ -257,7 +257,10 @@ showFigure(viztree)
 for i = 1:size(q',1)
     viztree.Configuration = q(:,i);
     waitfor(r);
-end     
+end
+
+% trajectoryData = [tvec', q']
+% writematrix(trajectoryData, 'wave_trajectory.csv');
 
 %% 2. Generalized Inverse Kinematics Setup
 % Define solver with constraints

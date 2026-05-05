@@ -1,6 +1,7 @@
 import time
 import yaml
 from pybear import Manager
+import argparse
 
 # Replace 'COM3' with the port you found in Device Manager
 # Default baudrate for BEAR is 8,000,000 (8M)
@@ -267,7 +268,7 @@ def get_info_example(bear, id):
         for key, value in values.items():
             print(f"{key}: {value} | error: {errors.get(key)}")
 
-def set_info_example(bear, save_to_flash):
+def set_info_example(bear, save_to_flash, bear_id=BEAR_ID):
     """
     Example function demonstrating how to use set_all_info.
     """    
@@ -279,7 +280,7 @@ def set_info_example(bear, save_to_flash):
             # Remove None values to avoid setting unchanged parameters
             new_config = {k: v for k, v in new_config.items() if v is not None}
         
-        return set_all_info(bear, BEAR_ID, new_config, save_to_flash=save_to_flash)
+        return set_all_info(bear, bear_id, new_config, save_to_flash=save_to_flash)
     except FileNotFoundError:
         print("Error: config.yaml not found in current directory")
     except yaml.YAMLError as e:
@@ -288,26 +289,33 @@ def set_info_example(bear, save_to_flash):
 
 
 if __name__ == "__main__":
-    
+    parser = argparse.ArgumentParser(description="Configure BEAR device (override defaults with CLI args)")
+    parser.add_argument('--port', '-p', help='Serial port (default from file)', default=None)
+    parser.add_argument('--bear-id', '-i', type=int, help='BEAR ID (default from file)', default=None)
+    args = parser.parse_args()
+
+    active_port = args.port if args.port is not None else PORT
+    active_bear_id = args.bear_id if args.bear_id is not None else BEAR_ID
+
     # Initialize bear
-    bear = Manager.BEAR(port=PORT, baudrate=BAUDRATE)
+    bear = Manager.BEAR(port=active_port, baudrate=BAUDRATE)
     
     # # Scan for ID
     # scan_bear_ids(bear=bear)
 
     # Getting all info
-    get_info_example(bear=bear, id=BEAR_ID)
+    get_info_example(bear=bear, id=active_bear_id)
     input('This is current config. Press ENTER to set configs.')
     
     # Setting necessary info
-    updated_bear_id = set_info_example(bear=bear, save_to_flash=True)
+    updated_bear_id = set_info_example(bear=bear, save_to_flash=True, bear_id=active_bear_id)
     if updated_bear_id is None:
-        updated_bear_id = BEAR_ID
+        updated_bear_id = active_bear_id
     input('Configs updated. Press ENTER to see new configs.')
 
     # Seeing if setting works
     get_info_example(bear=bear, id=updated_bear_id)
     input('New config printed. Press ENTER to close.')
     
-    
+    # To run: python configure.py --port COM4 --bear-id 2
     
