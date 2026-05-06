@@ -27,7 +27,7 @@ except ModuleNotFoundError:
 error = False
 bear = Manager.BEAR(port="COM3", baudrate=8000000)  # change this to your device port
 
-m_id = 10  # BEAR ID (default is 1)
+m_id = 3 # BEAR ID (default is 1)
 
 BEAR_connected = bear.ping(m_id)[0][1] is not None
 if not BEAR_connected:

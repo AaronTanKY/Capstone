@@ -12,10 +12,10 @@ def move_motor(bear, bear_id, goal_pos):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Configure BEAR device (override defaults with CLI args)")
-    parser.add_argument('--bear-id', '-i', help='Bear ID', default=1)
+    parser.add_argument('--bear-id', '-i', help='Bear ID', type=int, default=1)
     parser.add_argument('--port', '-p', help='Serial port (default from file)', default='COM3')
     parser.add_argument('--data', '-d', help='CSV file name', default='motor_commands.csv')
-    parser.add_argument('--baudrate', '-b', help='Baudrate', default=8000000)
+    parser.add_argument('--baudrate', '-b', help='Baudrate', type=int, default=8000000)
     args = parser.parse_args()
 
     active_port = args.port
@@ -27,10 +27,19 @@ if __name__ == "__main__":
     df = pd.read_csv(csv_file, header=None)
     # Column 0 is Time, Columns 1+ are Joints
     t_points = df.iloc[:, 0].values
-    q_points = df.iloc[:, 1:].values    # TODO! SET THIS TO 1 instead of 1: to test 1 motor
+    q_points = df.iloc[:, 5].values    # TODO! SET THIS TO 1 instead of 1: to test 1 motor
 
     # Initialize bear
     bear = Manager.BEAR(port=active_port, baudrate=baudrate)
+
+    # Check connection
+    BEAR_connected = bear.ping(bear_id)[0][1] is not None
+    if not BEAR_connected:
+        # BEAR is offline
+        print("BEAR is offline. Check power and connection.")
+        error = True
+        exit()
+
     # Get home position
     home = bear.get_present_position(bear_id)[0][0][0]
     # Set goal position before enabling BEAR
@@ -40,14 +49,14 @@ if __name__ == "__main__":
 
     for i in range(len(t_points)):
         # 1. Send q_points[i] to your motor SDK here
-        move_motor(q_points[i])
+        move_motor(bear, bear_id, q_points[i])
         
         # 2. Calculate sleep time until the next waypoint
         if i < len(t_points) - 1:
             dt = t_points[i+1] - t_points[i]
             time.sleep(dt)
-        print('BEAR arrived target angle!')
-    
+
+    print('BEAR performed its motion!')
     time.sleep(2)
 
     # Turn off BEAR

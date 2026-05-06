@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # Initialize bear
     bear = Manager.BEAR(port=active_port, baudrate=BAUDRATE)
 
-    for active_bear_id in range(1, 11):
+    for active_bear_id in range(3, 4):
         bear.set_posi((active_bear_id, 0, 0))
         updated_pos, updated_pos_error = read_register(bear, active_bear_id, bear.get_present_position)
         print(f"Set BEAR ID {active_bear_id} position to {updated_pos} | error: {updated_pos_error}")
