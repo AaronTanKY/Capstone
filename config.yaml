@@ -3,11 +3,11 @@
 # Remove entries entirely to skip them
 
 # Basic Configuration
-id: 10
+id: 1
 mode: 2
 
 # ID Control Gains
-p_gain_id: 0.317
+p_gain_id: 0.358
 i_gain_id: 0.045
 d_gain_id: 0
 

@@ -416,7 +416,7 @@ class BEAR(Packet.PKT):
         return: list of status data, e.g., [([read_data11, read_data12], error1), ([read_data21, read_data22], error2)]
         """
         read_stat_data_list, error_list = self._bulk_read_write_stat(bear_list, read_stat_name_list, [], [])
-        return [(read_stat_data_list[idx], error_list[idx]) for idx in bear_list]
+        return [(read_stat_data_list[i], error_list[i]) for i in range(len(bear_list))]
 
     def bulk_write(self, bear_list, write_stat_name_list, data_list):
         """
@@ -430,7 +430,7 @@ class BEAR(Packet.PKT):
         return: list of status data, e.g., [([read_data11, read_data12], error1), ([read_data21, read_data22], error2)]
         """
         read_stat_data_list, error_list = self._bulk_read_write_stat(bear_list, read_stat_name_list, write_stat_name_list, write_stat_data_list)
-        return [(read_stat_data_list[idx], error_list[idx]) for idx in bear_list]
+        return [(read_stat_data_list[i], error_list[i]) for i in range(len(bear_list))]
     
     def get_register(self, *argv):
         """

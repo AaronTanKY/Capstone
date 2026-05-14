@@ -17,7 +17,7 @@ def move_motors(bear, m_ids, goal_pos):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BEAR Multi-Motor Control")
     parser.add_argument('--port', '-p', help='Serial port (default from file)', default='COM3')
-    parser.add_argument('--data', '-d', help='CSV file name', default='motor_commands.csv')
+    parser.add_argument('--data', '-d', help='CSV file name', default='yes.csv')
     parser.add_argument('--baudrate', '-b', help='Baudrate', type=int, default=8000000)
     args = parser.parse_args()
     
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     bear.bulk_write(m_ids, ['goal_position'], home)
 
     # Enable BEAR
-    bear.set_torque_enable([(m_id, 1) for m_id in m_ids])
+    bear.set_torque_enable(*[(m_id, 1) for m_id in m_ids])
 
     for i in range(len(t_points)):
         # 1. Send q_points[i] to your motor SDK here
@@ -69,6 +69,6 @@ if __name__ == "__main__":
     # Turn off BEAR
     input('Press Enter to turn off BEAR.')
     # Disable BEAR
-    bear.set_torque_enable([(m_id, 0) for m_id in m_ids])
+    bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
 
     print("Thanks for using BEAR!")

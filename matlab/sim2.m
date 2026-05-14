@@ -124,15 +124,15 @@ jntGripperRight = rigidBodyJoint("gripRight", "fixed");
 jntBaseNeck.JointAxis = [0 0 1]; % z-axis
 jnt2.JointAxis = [0 1 0]; % y-axis
 % Left Arm
-jntBaseLeft.JointAxis = [0 1 0]; % y-axis
+jntBaseLeft.JointAxis = [0 -1 0]; % y-axis
 jnt4.JointAxis = [1 0 0]; % x-axis
 jnt5.JointAxis = [0 0 1]; % z-axis
-jnt6.JointAxis = [0 1 0]; % z-axis
+jnt6.JointAxis = [0 1 0]; % y-axis
 % Right Arm
 jntBaseRight.JointAxis = [0 1 0]; % y-axis
 jnt8.JointAxis = [1 0 0]; % x-axis
 jnt9.JointAxis = [0 0 1]; % z-axis
-jnt10.JointAxis = [0 1 0]; % z-axis
+jnt10.JointAxis = [0 -1 0]; % y-axis
 
 % Neck
 setFixedTransform(jntBaseNeck, trvec2tform([0 0 0.1]));
@@ -208,7 +208,7 @@ tvec = 0 : 0.1 : tpts(end);
 
 [q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec); 
 
-r = rateControl(10);
+r = rateControl(1000);
 viztree.ShowMarker = false;  % Hide the marker 
 
 showFigure(viztree)
@@ -237,7 +237,7 @@ tpts = 0 : timeStep : (numPoses-1) * timeStep;
 
 % 4. Create the fine-grained time vector for the trajectory
 % tpts(end) ensures tvec always stops exactly at your last waypoint
-tvec = 0 : 0.1 : tpts(end);
+tvec = 0 : 0.001 : tpts(end);
 
 % 2. Calculate "Average" velocities for intermediate points
 % This is a simple heuristic: (NextPoint - PreviousPoint) / Time
@@ -249,7 +249,7 @@ end
 [q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec, ...
     'VelocityBoundaryCondition', waypointVelocities); 
 
-r = rateControl(10);
+r = rateControl(1000);
 viztree.ShowMarker = false;  % Hide the marker 
 
 showFigure(viztree)
@@ -262,60 +262,60 @@ end
 % trajectoryData = [tvec', q']
 % writematrix(trajectoryData, 'wave_trajectory.csv');
 
-%% 2. Generalized Inverse Kinematics Setup
-% Define solver with constraints
-gik = generalizedInverseKinematics('RigidBodyTree', robot, ...
-    'ConstraintInputs', {'position', 'orientation', 'joint'});
-
-posTgt = constraintPositionTarget('gripperLeft');
-posTgt.PositionTolerance = 0.002;
-
-orienTgt = constraintOrientationTarget('gripperLeft');
-orienTgt.TargetOrientation = [1 0 0 0];
-
-jointTgt = constraintJointBounds(robot);
-
-%% 3. Trajectory Planning
-numWaypoints = 40; 
-theta = linspace(0, 2*pi, numWaypoints);
-radius = 0.05;
-center = [0, 0.1, -0.1]; 
-
-q0 = homeConfiguration(robot); 
-% FIX 1: Pre-allocate with enough columns for all joints [cite: 36, 40]
-qWaypoints = repmat(q0', numWaypoints, 1); 
-
-maxJointChange = deg2rad(5);
-currentGuess = q0; % This is a 4x1 column vector
-
-for k = 1:numWaypoints
-    posTgt.TargetPosition = [center(1) + radius*cos(theta(k)), ...
-                             center(2), ...
-                             center(3) + radius*sin(theta(k))];
-    
-    % FIX 2: Bounds must be [N x 2] (Column 1: Min, Column 2: Max) [cite: 177]
-    jointTgt.Bounds = [currentGuess - maxJointChange, currentGuess + maxJointChange];
-    
-    % Solve configuration [cite: 151]
-    [qSol, solInfo] = gik(currentGuess, posTgt, orienTgt, jointTgt);
-    
-    % Store as a row [cite: 179]
-    qWaypoints(k,:) = qSol';
-    
-    % Update guess for next iteration (Back to column for the solver) [cite: 151, 179]
-    currentGuess = qSol;
-end
-
-%% 4. Animation
-% Interpolate for smoothness [cite: 188, 194]
-tSteps = linspace(0, 1, numWaypoints);
-tInterp = linspace(0, 1, numWaypoints * 5);
-qInterp = pchip(tSteps, qWaypoints', tInterp)';
-
-figure;
-for i = 1:size(qInterp, 1)
-    % Pass each configuration as a column vector to 'show' [cite: 224]
-    show(robot, qInterp(i,:)', 'PreservePlot', false, 'Collisions', 'on');
-    axis equal; view(3); grid on;
-    drawnow;
-end
+% %% 2. Generalized Inverse Kinematics Setup
+% % Define solver with constraints
+% gik = generalizedInverseKinematics('RigidBodyTree', robot, ...
+%     'ConstraintInputs', {'position', 'orientation', 'joint'});
+% 
+% posTgt = constraintPositionTarget('gripperLeft');
+% posTgt.PositionTolerance = 0.002;
+% 
+% orienTgt = constraintOrientationTarget('gripperLeft');
+% orienTgt.TargetOrientation = [1 0 0 0];
+% 
+% jointTgt = constraintJointBounds(robot);
+% 
+% %% 3. Trajectory Planning
+% numWaypoints = 40; 
+% theta = linspace(0, 2*pi, numWaypoints);
+% radius = 0.05;
+% center = [0, 0.1, -0.1]; 
+% 
+% q0 = homeConfiguration(robot); 
+% % FIX 1: Pre-allocate with enough columns for all joints [cite: 36, 40]
+% qWaypoints = repmat(q0', numWaypoints, 1); 
+% 
+% maxJointChange = deg2rad(5);
+% currentGuess = q0; % This is a 4x1 column vector
+% 
+% for k = 1:numWaypoints
+%     posTgt.TargetPosition = [center(1) + radius*cos(theta(k)), ...
+%                              center(2), ...
+%                              center(3) + radius*sin(theta(k))];
+% 
+%     % FIX 2: Bounds must be [N x 2] (Column 1: Min, Column 2: Max) [cite: 177]
+%     jointTgt.Bounds = [currentGuess - maxJointChange, currentGuess + maxJointChange];
+% 
+%     % Solve configuration [cite: 151]
+%     [qSol, solInfo] = gik(currentGuess, posTgt, orienTgt, jointTgt);
+% 
+%     % Store as a row [cite: 179]
+%     qWaypoints(k,:) = qSol';
+% 
+%     % Update guess for next iteration (Back to column for the solver) [cite: 151, 179]
+%     currentGuess = qSol;
+% end
+% 
+% %% 4. Animation
+% % Interpolate for smoothness [cite: 188, 194]
+% tSteps = linspace(0, 1, numWaypoints);
+% tInterp = linspace(0, 1, numWaypoints * 5);
+% qInterp = pchip(tSteps, qWaypoints', tInterp)';
+% 
+% figure;
+% for i = 1:size(qInterp, 1)
+%     % Pass each configuration as a column vector to 'show' [cite: 224]
+%     show(robot, qInterp(i,:)', 'PreservePlot', false, 'Collisions', 'on');
+%     axis equal; view(3); grid on;
+%     drawnow;
+% end

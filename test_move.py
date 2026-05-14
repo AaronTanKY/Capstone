@@ -27,7 +27,7 @@ if __name__ == "__main__":
     df = pd.read_csv(csv_file, header=None)
     # Column 0 is Time, Columns 1+ are Joints
     t_points = df.iloc[:, 0].values
-    q_points = df.iloc[:, 5].values    # TODO! SET THIS TO 1 instead of 1: to test 1 motor
+    q_points = df.iloc[:, bear_id].values    # TODO! SET THIS TO 1 instead of 1: to test 1 motor
 
     # Initialize bear
     bear = Manager.BEAR(port=active_port, baudrate=baudrate)
