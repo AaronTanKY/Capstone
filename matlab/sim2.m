@@ -193,7 +193,8 @@ end
 % addConfiguration(viztree)                     % Run this as many times
 
 %% 3a. Visualize unsaved movement
-numPoses = size(viztree.StoredConfigurations, 2);
+[numDOF, numPoses] = size(viztree.StoredConfigurations);
+movement = viztree.StoredConfigurations;
 
 % Time step between each waypoint
 timeStep = 2;
@@ -206,9 +207,17 @@ tpts = 0 : timeStep : (numPoses-1) * timeStep;
 % tpts(end) ensures tvec always stops exactly at your last waypoint
 tvec = 0 : 0.1 : tpts(end);
 
-[q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec); 
+% 2. Calculate "Average" velocities for intermediate points
+% This is a simple heuristic: (NextPoint - PreviousPoint) / Time
+waypointVelocities = zeros(numDOF, numPoses);
+for j = 2:numPoses-1
+    waypointVelocities(:,j) = (movement(:,j+1) - movement(:,j-1)) / (tpts(j+1) - tpts(j-1));
+end
 
-r = rateControl(1000);
+[q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec, ...
+    'VelocityBoundaryCondition', waypointVelocities); 
+
+r = rateControl(10);
 viztree.ShowMarker = false;  % Hide the marker 
 
 showFigure(viztree)
@@ -223,8 +232,8 @@ end
 % save('wavePose.mat','wavePose');
 
 %% 3b. Visualize saved movement
-load("wavePose.mat");
-viztree.StoredConfigurations = wavePose;
+load("head_idle1.mat");
+viztree.StoredConfigurations = head_idle1;
 
 [numDOF, numPoses] = size(viztree.StoredConfigurations);
 
@@ -243,7 +252,7 @@ tvec = 0 : 0.001 : tpts(end);
 % This is a simple heuristic: (NextPoint - PreviousPoint) / Time
 waypointVelocities = zeros(numDOF, numPoses);
 for j = 2:numPoses-1
-    waypointVelocities(:,j) = (wavePose(:,j+1) - wavePose(:,j-1)) / (tpts(j+1) - tpts(j-1));
+    waypointVelocities(:,j) = (head_idle1(:,j+1) - head_idle1(:,j-1)) / (tpts(j+1) - tpts(j-1));
 end
 
 [q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec, ...
@@ -259,63 +268,6 @@ for i = 1:size(q',1)
     waitfor(r);
 end
 
-% trajectoryData = [tvec', q']
-% writematrix(trajectoryData, 'wave_trajectory.csv');
 
-% %% 2. Generalized Inverse Kinematics Setup
-% % Define solver with constraints
-% gik = generalizedInverseKinematics('RigidBodyTree', robot, ...
-%     'ConstraintInputs', {'position', 'orientation', 'joint'});
-% 
-% posTgt = constraintPositionTarget('gripperLeft');
-% posTgt.PositionTolerance = 0.002;
-% 
-% orienTgt = constraintOrientationTarget('gripperLeft');
-% orienTgt.TargetOrientation = [1 0 0 0];
-% 
-% jointTgt = constraintJointBounds(robot);
-% 
-% %% 3. Trajectory Planning
-% numWaypoints = 40; 
-% theta = linspace(0, 2*pi, numWaypoints);
-% radius = 0.05;
-% center = [0, 0.1, -0.1]; 
-% 
-% q0 = homeConfiguration(robot); 
-% % FIX 1: Pre-allocate with enough columns for all joints [cite: 36, 40]
-% qWaypoints = repmat(q0', numWaypoints, 1); 
-% 
-% maxJointChange = deg2rad(5);
-% currentGuess = q0; % This is a 4x1 column vector
-% 
-% for k = 1:numWaypoints
-%     posTgt.TargetPosition = [center(1) + radius*cos(theta(k)), ...
-%                              center(2), ...
-%                              center(3) + radius*sin(theta(k))];
-% 
-%     % FIX 2: Bounds must be [N x 2] (Column 1: Min, Column 2: Max) [cite: 177]
-%     jointTgt.Bounds = [currentGuess - maxJointChange, currentGuess + maxJointChange];
-% 
-%     % Solve configuration [cite: 151]
-%     [qSol, solInfo] = gik(currentGuess, posTgt, orienTgt, jointTgt);
-% 
-%     % Store as a row [cite: 179]
-%     qWaypoints(k,:) = qSol';
-% 
-%     % Update guess for next iteration (Back to column for the solver) [cite: 151, 179]
-%     currentGuess = qSol;
-% end
-% 
-% %% 4. Animation
-% % Interpolate for smoothness [cite: 188, 194]
-% tSteps = linspace(0, 1, numWaypoints);
-% tInterp = linspace(0, 1, numWaypoints * 5);
-% qInterp = pchip(tSteps, qWaypoints', tInterp)';
-% 
-% figure;
-% for i = 1:size(qInterp, 1)
-%     % Pass each configuration as a column vector to 'show' [cite: 224]
-%     show(robot, qInterp(i,:)', 'PreservePlot', false, 'Collisions', 'on');
-%     axis equal; view(3); grid on;
-%     drawnow;
-% end
+% A = [tvec', q']
+% writematrix(A, 'wave_trajectory.csv')
