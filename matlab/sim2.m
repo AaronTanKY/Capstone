@@ -124,14 +124,14 @@ jntGripperRight = rigidBodyJoint("gripRight", "fixed");
 jntBaseNeck.JointAxis = [0 0 1]; % z-axis
 jnt2.JointAxis = [0 1 0]; % y-axis
 % Left Arm
-jntBaseLeft.JointAxis = [0 -1 0]; % y-axis
+jntBaseLeft.JointAxis = [0 1 0]; % y-axis
 jnt4.JointAxis = [1 0 0]; % x-axis
-jnt5.JointAxis = [0 0 1]; % z-axis
+jnt5.JointAxis = [0 0 -1]; % z-axis
 jnt6.JointAxis = [0 1 0]; % y-axis
 % Right Arm
-jntBaseRight.JointAxis = [0 1 0]; % y-axis
+jntBaseRight.JointAxis = [0 -1 0]; % y-axis
 jnt8.JointAxis = [1 0 0]; % x-axis
-jnt9.JointAxis = [0 0 1]; % z-axis
+jnt9.JointAxis = [0 0 -1]; % z-axis
 jnt10.JointAxis = [0 -1 0]; % y-axis
 
 % Neck
@@ -231,36 +231,43 @@ end
 % wavePose = viztree.StoredConfigurations;
 % save('wavePose.mat','wavePose');
 
-%% 3b. Visualize saved movement
-load("head_idle1.mat");
-viztree.StoredConfigurations = head_idle1;
 
+%% 3b. Visualize saved movement
+% --- USER DEFINED VARIABLE ---
+myMotionName = 'six_seven'; % Replace 'idle' with your desired string
+% -----------------------------
+
+% Use the functional form load('filename.mat') to handle variables
+data = load([myMotionName, '.mat']);
+
+% Use dynamic field naming data.(variable) to access the struct field
+viztree.StoredConfigurations = data.(myMotionName);
+
+% Replace 'idle' with the dynamic data in the rest of the script
 [numDOF, numPoses] = size(viztree.StoredConfigurations);
 
 % Time step between each waypoint
 timeStep = 2;
 
 % 3. Create evenly spaced time points starting from 0
-% If numPoses is 6, this creates [0 2 4 6 8 10]
 tpts = 0 : timeStep : (numPoses-1) * timeStep;
 
 % 4. Create the fine-grained time vector for the trajectory
-% tpts(end) ensures tvec always stops exactly at your last waypoint
 tvec = 0 : 0.001 : tpts(end);
 
 % 2. Calculate "Average" velocities for intermediate points
-% This is a simple heuristic: (NextPoint - PreviousPoint) / Time
 waypointVelocities = zeros(numDOF, numPoses);
 for j = 2:numPoses-1
-    waypointVelocities(:,j) = (head_idle1(:,j+1) - head_idle1(:,j-1)) / (tpts(j+1) - tpts(j-1));
+    % Use the stored configurations directly to avoid repeated dynamic naming
+    waypointVelocities(:,j) = (viztree.StoredConfigurations(:,j+1) - ...
+                               viztree.StoredConfigurations(:,j-1)) / (tpts(j+1) - tpts(j-1));
 end
 
-[q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations,tpts,tvec, ...
+[q,qd,qdd,pp] = cubicpolytraj(viztree.StoredConfigurations, tpts, tvec, ...
     'VelocityBoundaryCondition', waypointVelocities); 
 
 r = rateControl(1000);
 viztree.ShowMarker = false;  % Hide the marker 
-
 showFigure(viztree)
 
 for i = 1:size(q',1)

@@ -20,6 +20,31 @@ def read_register(bear, bear_id, getter):
     return value, error_code
 
 
+def decode_error_code(error_code):
+    """
+    Convert a BEAR error bitfield into readable status messages.
+    """
+    if error_code is None:
+        return "Unknown error"
+
+    error_messages = [
+        (0, "Warning -- Communication"),
+        (1, "Warning -- Overheat"),
+        (2, "Warning -- Absolute Position"),
+        (3, "Warning -- Watchdog Timeout & ESTOP"),
+        (4, "Warning -- Joint Limit"),
+        (5, "Warning -- Hardware Fault"),
+        (6, "Warning -- Initialization Error"),
+    ]
+
+    messages = [message for bit, message in error_messages if error_code & (1 << bit)]
+
+    if error_code & (1 << 7) and not messages:
+        return "Good!"
+
+    return "; ".join(messages) if messages else f"Unknown error code: {error_code}"
+
+
 def get_all_info(bear, bear_id):
     """
     Retrieve all BEAR configuration and status information.
