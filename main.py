@@ -3,12 +3,13 @@ from pathlib import Path
 
 from pybear import Manager
 
-from move import choose_csv_file, run_motion_from_csv
+from move import choose_csv_file, run_motion_from_csv, run_random_csv_playback
 from record_and_replay import run_record_and_replay
 from zero import run_zero_sequence
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+MOTOR_IDS = list(range(1, 11))
 
 
 def prompt_mode():
@@ -18,13 +19,14 @@ def prompt_mode():
     print("\nWhat do you want to do next?")
     print("  1. Read from a CSV")
     print("  2. Record and replay motion")
+    print("  3. Random CSV playback")
     print("  q. Quit")
 
     while True:
-        choice = input("Select 1, 2, or q: ").strip()
-        if choice in {"1", "2", "q", "Q"}:
+        choice = input("Select 1, 2, 3, or q: ").strip()
+        if choice in {"1", "2", "3", "q", "Q"}:
             return choice
-        print("Please enter 1, 2, or q.")
+        print("Please enter 1, 2, 3, or q.")
 
 
 if __name__ == "__main__":
@@ -38,6 +40,9 @@ if __name__ == "__main__":
 
     bear = Manager.BEAR(port=args.port, baudrate=args.baudrate)
 
+    print("Disabling torque on all motors first...")
+    bear.set_torque_enable(*[(m_id, 0) for m_id in MOTOR_IDS])
+
     print("Running zero.py first...")
     run_zero_sequence(bear)
 
@@ -50,9 +55,12 @@ if __name__ == "__main__":
         if mode == '1':
             print("Launching move.py...")
             selected_csv = choose_csv_file(Path(args.csv_dir))
-            run_motion_from_csv(bear, list(range(1, 11)), selected_csv)
-        else:
+            run_motion_from_csv(bear, MOTOR_IDS, selected_csv)
+        elif mode == '2':
             print("Launching record_and_replay.py...")
-            run_record_and_replay(bear, list(range(1, 11)), args.sample_hz, args.output)
+            run_record_and_replay(bear, MOTOR_IDS, args.sample_hz, args.output)
+        else:
+            print("Launching random CSV playback...")
+            run_random_csv_playback(bear, MOTOR_IDS, Path(args.csv_dir))
 
     print("Main workflow complete.")

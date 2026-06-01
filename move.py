@@ -3,6 +3,7 @@ import pandas as pd
 import time
 import argparse
 from pathlib import Path
+import random
 
 
 def choose_csv_file(csv_dir):
@@ -31,6 +32,18 @@ def choose_csv_file(csv_dir):
 
         print("Selection out of range. Try again.")
 
+
+def choose_random_csv_file(csv_dir):
+    """
+    Select a CSV file at random from the local csv directory.
+    """
+    csv_files = sorted(csv_dir.glob('*.csv'))
+
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found in {csv_dir}")
+
+    return random.choice(csv_files)
+
 def move_motors(bear, m_ids, goal_pos):
     """
     Move multiple BEAR motors simultaneously using bulk_write
@@ -43,7 +56,7 @@ def move_motors(bear, m_ids, goal_pos):
     bear.bulk_write(m_ids, ['goal_position'], bulk_data)
 
 
-def run_motion_from_csv(bear, m_ids, csv_path):
+def run_motion_from_csv(bear, m_ids, csv_path, wait_for_user=True):
     """
     Run the standard CSV motion routine for an already-connected BEAR instance.
     """
@@ -102,13 +115,31 @@ def run_motion_from_csv(bear, m_ids, csv_path):
         print('BEAR performed its motion!')
         time.sleep(2)
 
-        input('Press Enter to turn off BEAR.')
+        if wait_for_user:
+            input('Press Enter to turn off BEAR.')
         bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
 
         print("Thanks for using BEAR!")
     except KeyboardInterrupt:
         bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
         print("Motion interrupted. BEAR torque disabled.")
+
+
+def run_random_csv_playback(bear, m_ids, csv_dir):
+    """
+    Keep selecting random CSV files and replaying them until the user stops.
+    """
+    csv_dir = Path(csv_dir)
+
+    try:
+        while True:
+            selected_csv = choose_random_csv_file(csv_dir)
+            print(f"Randomly selected: {selected_csv.name}")
+            run_motion_from_csv(bear, m_ids, selected_csv, wait_for_user=False)
+            time.sleep(2)
+    except KeyboardInterrupt:
+        bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
+        print("Random playback interrupted. BEAR torque disabled.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BEAR Multi-Motor Control")

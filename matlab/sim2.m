@@ -222,6 +222,8 @@ viztree.ShowMarker = false;  % Hide the marker
 
 showFigure(viztree)
 
+pause(5);
+
 for i = 1:size(q',1)
     viztree.Configuration = q(:,i);
     waitfor(r);
@@ -234,7 +236,7 @@ end
 
 %% 3b. Visualize saved movement
 % --- USER DEFINED VARIABLE ---
-myMotionName = 'six_seven'; % Replace 'idle' with your desired string
+myMotionName = 'wavePose'; % Replace 'idle' with your desired string
 % -----------------------------
 
 % Use the functional form load('filename.mat') to handle variables
