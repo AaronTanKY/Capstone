@@ -56,7 +56,7 @@ def move_motors(bear, m_ids, goal_pos):
     bear.bulk_write(m_ids, ['goal_position'], bulk_data)
 
 
-def run_motion_from_csv(bear, m_ids, csv_path, wait_for_user=True):
+def run_motion_from_csv(bear, m_ids, csv_path, wait_for_user=True, disable_torque_at_end=True):
     """
     Run the standard CSV motion routine for an already-connected BEAR instance.
     """
@@ -117,7 +117,11 @@ def run_motion_from_csv(bear, m_ids, csv_path, wait_for_user=True):
 
         if wait_for_user:
             input('Press Enter to turn off BEAR.')
-        bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
+
+        if disable_torque_at_end:
+            bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
+        else:
+            print('Leaving torque enabled for the next random playback.')
 
         print("Thanks for using BEAR!")
     except KeyboardInterrupt:
@@ -135,7 +139,13 @@ def run_random_csv_playback(bear, m_ids, csv_dir):
         while True:
             selected_csv = choose_random_csv_file(csv_dir)
             print(f"Randomly selected: {selected_csv.name}")
-            run_motion_from_csv(bear, m_ids, selected_csv, wait_for_user=False)
+            run_motion_from_csv(
+                bear,
+                m_ids,
+                selected_csv,
+                wait_for_user=False,
+                disable_torque_at_end=False,
+            )
             time.sleep(2)
     except KeyboardInterrupt:
         bear.set_torque_enable(*[(m_id, 0) for m_id in m_ids])
